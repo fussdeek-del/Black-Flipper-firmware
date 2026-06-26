@@ -8,4 +8,5 @@ idf_component_register(SRCS "cc1101.c"
                             "w25q128.c"
                             "battery.c"
                        INCLUDE_DIRS "include"
-                       PRIV_REQUIRES driver esp_rom hal esp_timer)
+                       REQUIRES config
+                       PRIV_REQUIRES driver esp_rom hal esp_timer freertos esp_adc)

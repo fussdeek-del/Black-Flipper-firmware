@@ -5,6 +5,7 @@
 
 #include "ui_manager.h"
 #include "esp_log.h"
+#include <stdio.h>
 #include "event_bus.h"
 #include "st7796s.h"
 #include "screens.h"
@@ -83,8 +84,11 @@ void ui_show_screen(ui_screen_t screen)
             ESP_LOGI(TAG, "[UI Draw] Last UID Read: %s", nfc_uid_str);
             break;
         case UI_SCREEN_GPS_VIEW:
-            ESP_LOGI(TAG, "[UI Draw] GPS Status: Fix=%s | Sats=%d", 
+            ESP_LOGI(TAG, "[UI Draw] GPS Status: Fix=%s | Sats=%d",
                      has_gps_fix_ui ? "YES" : "NO", has_gps_fix_ui ? 8 : 0);
+            break;
+        case UI_SCREEN_IR_TOOLS:
+            ESP_LOGI(TAG, "[UI Draw] IR Tools: Learn | Send | Replay last signal");
             break;
         case UI_SCREEN_SETTINGS:
             ESP_LOGI(TAG, "[UI Draw] Settings: Brightness | Battery Stats | Calibration");
@@ -92,10 +96,10 @@ void ui_show_screen(ui_screen_t screen)
     }
 }
 
-// Read touch coordinates from input device and update internal structures
+// Read touch coordinates from FT6336U over I2C and update internal structures
 static void ui_poll_input_events(void)
 {
-    // TODO: Read hardware SPI from Touch Controller (XPT2046) using drv_touch_read()
+    // TODO: Read FT6336U touch controller via I2C (PIN_TOUCH_I2C_SDA/SCL, PIN_TOUCH_IRQ)
     // Simulated periodic touch trigger
     static uint32_t ticks = 0;
     ticks++;
@@ -167,6 +171,14 @@ void ui_manager_update(void)
                          event.data.gps.latitude, event.data.gps.longitude);
                 if (current_screen == UI_SCREEN_GPS_VIEW) {
                     ui_show_screen(UI_SCREEN_GPS_VIEW);
+                }
+                break;
+
+            case EVENT_TYPE_IR_RECEIVED:
+                ESP_LOGI(TAG, "[UI Update] IR signal received (protocol=%lu)",
+                         (unsigned long)event.data.ir.protocol);
+                if (current_screen == UI_SCREEN_IR_TOOLS) {
+                    ui_show_screen(UI_SCREEN_IR_TOOLS);
                 }
                 break;
 

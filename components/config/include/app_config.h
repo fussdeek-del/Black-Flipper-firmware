@@ -4,12 +4,16 @@
  * for the Flipper Black firmware skeleton.
  *
  * This file serves as the central configuration registry. It defines the GPIO pinout,
- * task parameters (priority, stack size, core affinity), and global data structures 
+ * task parameters (priority, stack size, core affinity), and global data structures
  * for inter-core communication.
+ *
+ * NOTE: GPIO assignments are engineering placeholders until verified against the
+ * Black-Flipper KiCad netlist (https://github.com/fussdeek-del/Black-Flipper/tree/main/PCB).
  */
 
 #pragma once
 
+#include <stdbool.h>
 #include <stdint.h>
 
 /* ========================================================================== */
@@ -32,7 +36,7 @@
 #define PIN_SX1262_BUSY         17   // Busy status indicator
 #define PIN_SX1262_RST          18   // Hardware Reset
 
-// --- SPI Bus: Display, Touch, and External Flash ---
+// --- SPI Bus: Display and External Flash ---
 #define PIN_DISP_SPI_SCLK       37   // Shared SPI clock
 #define PIN_DISP_SPI_MOSI       35   // Shared Master-Out Slave-In
 #define PIN_DISP_SPI_MISO       36   // Shared Master-In Slave-Out
@@ -43,9 +47,10 @@
 #define PIN_ST7796S_RST         40   // Display Reset
 #define PIN_ST7796S_BCKL        41   // Display Backlight control (PWM)
 
-// Touch Controller (e.g., XPT2046) control pins
-#define PIN_TOUCH_CS            42   // Touch Chip Select
-#define PIN_TOUCH_IRQ           2    // Touch Interrupt Request
+// FT6336U capacitive touch (I2C, on Waveshare 3.5" display module)
+#define PIN_TOUCH_I2C_SDA       21   // Touch I2C data (provisional — verify vs schematic)
+#define PIN_TOUCH_I2C_SCL       22   // Touch I2C clock (provisional — verify vs schematic)
+#define PIN_TOUCH_IRQ           2    // Touch interrupt (active on touch-down)
 
 // External SPI Flash (W25Q128) control pins
 #define PIN_W25Q128_CS          47   // Flash Chip Select
@@ -75,6 +80,9 @@
 #define PIN_USB_D_MINUS         19   // Built-in ESP32-S3 USB OTG D-
 #define PIN_USB_D_PLUS          20   // Built-in ESP32-S3 USB OTG D+
 #define PIN_BOOT_STRAP          0    // Hardwired BOOT button
+
+/* Future hardware (no drivers yet): MCP23017 GPIO expander, MicroSD slot,
+ * PE4259 RF antenna switch, built-in Wi-Fi/BLE (ESP32-S3 native). */
 
 /* ========================================================================== */
 /*                          FREERTOS TASK CONFIGURATION                        */
@@ -109,29 +117,29 @@
  */
 typedef enum {
     EVENT_TYPE_NONE = 0,
-    
+
     // RF events (GDO/DIO triggers, packet received)
     EVENT_TYPE_RF_SUBGHZ_RX,
     EVENT_TYPE_RF_LORA_RX,
     EVENT_TYPE_RF_TX_COMPLETE,
-    
+
     // NFC events
     EVENT_TYPE_NFC_TAG_DETECTED,
     EVENT_TYPE_NFC_ERROR,
-    
+
     // GPS events
     EVENT_TYPE_GPS_FIX_ACQUIRED,
     EVENT_TYPE_GPS_UPDATE,
-    
+
     // IR events
     EVENT_TYPE_IR_RECEIVED,
     EVENT_TYPE_IR_SENT,
-    
+
     // Power events
     EVENT_TYPE_BATTERY_LOW,
     EVENT_TYPE_BATTERY_CHARGING,
     EVENT_TYPE_BATTERY_FULL,
-    
+
     // UI/User input events
     EVENT_TYPE_UI_TOUCH,
     EVENT_TYPE_UI_BUTTON_PRESS,
@@ -149,7 +157,7 @@ typedef struct {
             uint8_t length;
             int16_t rssi;
         } rf_rx;
-        
+
         // NFC payload details
         struct {
             uint8_t uid[7];
@@ -175,7 +183,7 @@ typedef struct {
             float voltage;
             uint8_t percentage;
         } battery;
-        
+
         // Keypad/button index
         struct {
             uint8_t key_code;

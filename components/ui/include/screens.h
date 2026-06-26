@@ -14,6 +14,7 @@ typedef enum {
     UI_SCREEN_RADIO_LORA,
     UI_SCREEN_NFC_TOOLS,
     UI_SCREEN_GPS_VIEW,
+    UI_SCREEN_IR_TOOLS,
     UI_SCREEN_SETTINGS,
     UI_SCREEN_MAX
 } ui_screen_t;
@@ -38,6 +39,7 @@ static inline const char* ui_screen_name(ui_screen_t screen) {
         case UI_SCREEN_RADIO_LORA:     return "LoRa Tools";
         case UI_SCREEN_NFC_TOOLS:     return "NFC Scanner";
         case UI_SCREEN_GPS_VIEW:      return "GPS Coordinates";
+        case UI_SCREEN_IR_TOOLS:      return "IR Tools";
         case UI_SCREEN_SETTINGS:      return "System Settings";
         default:                      return "Unknown Screen";
     }

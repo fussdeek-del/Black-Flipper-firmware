@@ -8,14 +8,13 @@
 #include "driver/spi_common.h"
 #include "esp_flash.h"
 #include "esp_partition.h"
-#include "esp_vfs_fat.h" // FATFS VFS driver
 #include "app_config.h"
 
 static const char *TAG = "DRV_W25Q128";
 
 // Handle to registered flash device
 static esp_flash_t *ext_flash = NULL;
-static wl_handle_t s_wl_handle = WL_INVALID_HANDLE;
+// TODO: wl_handle_t s_wl_handle when esp_vfs_fat_spiflash_mount is implemented
 
 esp_err_t drv_w25q128_init(void)
 {

@@ -58,6 +58,8 @@ Handles user experience, human-device interfaces (HID), slower sensing lines, an
 
 ## 3. Peripheral Pinout Table (ESP32-S3 QFN56)
 
+> **Provisional pinout:** GPIO numbers below are engineering placeholders for firmware bring-up. They must be cross-checked against the [Black-Flipper KiCad netlist](https://github.com/fussdeek-del/Black-Flipper/tree/main/PCB) before production hardware validation.
+
 | Peripheral Module | Pin Function | GPIO Pin | Shared Bus | Electrical Config / Notes |
 |:---|:---|:---|:---|:---|
 | **RF SPI** | SCLK | GPIO 12 | SPI2 | 40MHz clock line |
@@ -77,11 +79,12 @@ Handles user experience, human-device interfaces (HID), slower sensing lines, an
 | | DC | GPIO 39 | — | Command (Low) / Data (High) output |
 | | RST | GPIO 40 | — | Active-Low hardware screen reset |
 | | BCKL | GPIO 41 | — | PWM backlight drive (LEDC Channel) |
-| **Touch Sensor** | CS | GPIO 42 | SPI3 | Active-Low touch chip select |
-| | IRQ | GPIO 2 | — | Interrupt input on touch touch-down |
+| **FT6336U Touch** | SDA | GPIO 21 | I2C (provisional) | Capacitive touch on Waveshare 3.5" module |
+| | SCL | GPIO 22 | I2C (provisional) | 4.7k external pull-ups |
+| | IRQ | GPIO 2 | — | Interrupt input on touch-down |
 | **W25Q128 Flash**| CS | GPIO 47 | SPI3 | Active-Low external SPI flash CS |
-| **PN532 NFC** | SDA | GPIO 4 | I2C0 | I2C clock (4.7k external pull-up) |
-| | SCL | GPIO 5 | I2C0 | I2C data (4.7k external pull-up) |
+| **PN532 NFC** | SDA | GPIO 4 | I2C0 | I2C data (4.7k external pull-up) |
+| | SCL | GPIO 5 | I2C0 | I2C clock (4.7k external pull-up) |
 | | IRQ | GPIO 6 | — | NFC tag found wake interrupt |
 | | RST | GPIO 7 | — | Hardware sleep reset output |
 | **MAX-M8Q GPS**  | TX | GPIO 43 | UART2 | Connects to GPS RX (9600 baud) |
@@ -94,6 +97,15 @@ Handles user experience, human-device interfaces (HID), slower sensing lines, an
 | **USB Native** | D- | GPIO 19 | — | Built-in ESP32-S3 USB OTG |
 | | D+ | GPIO 20 | — | Built-in ESP32-S3 USB OTG |
 | **Boot Pin** | BOOT | GPIO 0 | — | Internally pulled high, ground to program |
+
+### Future hardware (not yet in firmware skeleton)
+
+| Component | Part | Notes |
+|:---|:---|:---|
+| GPIO Expander | MCP23017 | Extra GPIO for buttons/LEDs; I2C address TBD |
+| Storage | MicroSD slot | FatFS for capture logs; SPI or SDMMC TBD |
+| RF Switch | PE4259 | Antenna routing between CC1101/PA paths |
+| Wireless | ESP32-S3 native | Wi-Fi 802.11 b/g/n and BLE 5.0 (no service tasks yet) |
 
 ---
 
@@ -161,6 +173,11 @@ The user interface uses a cyclic layout style suitable for touchscreen and butto
                            | Touch press
                            v
                +-----------------------+
+               |       IR Tools        |  <-- Learn / Send / Replay IR
+               +-----------+-----------+
+                           | Touch press
+                           v
+               +-----------------------+
                |    System Settings    |  <-- Backlight, power, flash storage
                +-----------+-----------+
                            | Touch press
@@ -179,3 +196,6 @@ The user interface uses a cyclic layout style suitable for touchscreen and butto
 2. **FatFS/SPIFFS File Explorer Screen**: Develop screen flows to traverse files stored in the external W25Q128 memory partition, allowing users to save captured sub-GHz signals or GPS track logs.
 3. **Signal Analyzer Module**: Use CC1101 interrupt lines to measure exact sub-GHz RF pulse timings (amplitudes/intervals) and save them as `.sub` raw capture files.
 4. **Low Power Sleep Modes**: Put Core 0 tasks to sleep and command the GPS/NFC/RF chips into low power standbys when the device is idle, waking only on touch interrupts or battery charge events.
+5. **LVGL Integration**: Add the LVGL managed component and wire `drv_st7796s_flush()` plus FT6336U I2C input into `ui_manager`.
+6. **MCP23017 / MicroSD / PE4259 Drivers**: GPIO expander for physical buttons, SD card file storage, and RF antenna switching.
+7. **Wi-Fi / BLE Services**: Core 1 tasks for scanning, packet capture, and BLE interaction using ESP32-S3 native radios.

@@ -7,6 +7,7 @@
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include <string.h>
 
 // Include driver interfaces
 #include "cc1101.h"
@@ -153,8 +154,8 @@ void system_core_task_entry(void *pvParameters)
             drv_battery_get_percentage(&battery_pct);
             battery_status_t state = drv_battery_get_status();
 
-            ESP_LOGI(TAG_SYS, "Battery Check: %ld mV (%d%%), Status: %d", 
-                     battery_mv, battery_pct, state);
+            ESP_LOGI(TAG_SYS, "Battery Check: %lu mV (%d%%), Status: %d",
+                     (unsigned long)battery_mv, battery_pct, state);
 
             app_event_t event;
             if (state == BATTERY_CHARGING) {

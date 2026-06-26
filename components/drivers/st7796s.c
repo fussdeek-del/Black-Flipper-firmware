@@ -8,6 +8,8 @@
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
 #include "driver/ledc.h" // For display backlight PWM control
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "app_config.h"
 
 static const char *TAG = "DRV_ST7796S";

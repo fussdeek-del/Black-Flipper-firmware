@@ -6,6 +6,8 @@
 #include "max_m8q.h"
 #include "esp_log.h"
 #include "driver/uart.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "app_config.h"
 
 static const char *TAG = "DRV_MAX_M8Q";

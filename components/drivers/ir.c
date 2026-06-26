@@ -10,7 +10,7 @@
 
 // Note: In ESP-IDF v5.x, RMT is managed via the 'driver/rmt_tx.h' and 'driver/rmt_rx.h' drivers.
 // Since this is a skeleton, we include placeholders showing how to register channels.
-#include "driver/rmt_encoder.h" // In a real app we'd use this for NEC protocol encoding
+// #include "driver/rmt_encoder.h" // TODO: use for NEC protocol encoding
 
 static const char *TAG = "DRV_IR";
 
